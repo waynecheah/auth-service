@@ -1,5 +1,5 @@
 {
-  "name": "xyz-api",
+  "name": "auth-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://gitlab.mcommsg.com/wayne/xyz-api"
+    "url": "https://github.com/waynecheah/auth-service"
   },
   "author": "Wayne Cheah",
   "license": "ISC",
@@ -35,6 +35,7 @@
   "nodemonConfig": {
     "restartable": "rs",
     "ignore": [
+      "data/db",
       "node_modules/**/node_modules",
       "test/*",
       "*.test.js"

@@ -87,6 +87,7 @@ You can automate the deployment of Auth Flow Service to <a href="https://cloud.g
 4. <a href="https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values?_ga=2.157475192.-372591699.1609419431">Set environment variables according to</a> <a href="./.env.example"><code>.env.example</code></a>
 5. <a href="https://github.com/settings/installations">Double check if Google Cloud Build is authorized</a>
 6. Checkout source code to main branch and push commit to Github
+7. <a href="https://cloud.google.com/run/docs/authenticating/public">Allowing public access to the APIs</a>
 ---
 
 ## APIs Documentation
