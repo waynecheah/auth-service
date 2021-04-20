@@ -13,18 +13,20 @@ function initConfig () {
 async function connect () {
     const {
         MONGODB_AUTH_DB, MONGODB_DATABASE, MONGODB_HOST, MONGODB_PASSWORD,
-        MONGODB_PORT=27017, MONGODB_USE_SSL=false, MONGODB_USERNAME
+        MONGODB_PORT=27017, MONGODB_USE_SSL=false, MONGODB_USERNAME, MONGODB_URI=null
     } = initConfig()
     const useSSL = (MONGODB_USE_SSL) ? '&ssl=true' : ''
-    const url    = `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/` +
-                   `?authSource=${MONGODB_AUTH_DB}${useSSL}`
+    const url    = (MONGODB_URI)
+        ? MONGODB_URI
+        : `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/` +
+          `?authSource=${MONGODB_AUTH_DB}${useSSL}`
     const Client = new mongodb.MongoClient(url, { useUnifiedTopology: true })
 
     try {
+        const client = await Client.connect()
+        const host   = (MONGODB_URI) ? client.s?.options?.srvHost : MONGODB_HOST
 
-        await Client.connect()
-
-        console.log(`MongoDB on ${MONGODB_HOST} connected`)
+        console.log(`MongoDB on ${host} connected`)
 
         const Db = Client.db(MONGODB_DATABASE)
 

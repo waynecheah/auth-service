@@ -1,8 +1,8 @@
 steps:
-  # build the container image
+  # Build the container image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/$_IMAGE', '-f', 'Dockerfile.prod', '.']
-  # push the container image to Container Registry
+  # Push the container image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia.gcr.io/$PROJECT_ID/$_IMAGE']
   # Deploy container image to Cloud Run
@@ -24,4 +24,13 @@ steps:
     JWT_SECRET=$_JWT_SECRET,
     MONGODB_PASSWORD=$_MONGODB_PASSWORD,
     MSSQL_PASSWORD=$_MSSQL_PASSWORD
+  # Allocate 100% of the traffic to latest revision
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'services'
+  - 'update-traffic'
+  - '$_SERVICE'
+  - '--to-latest'
 images: ['asia.gcr.io/$PROJECT_ID/$_IMAGE']
