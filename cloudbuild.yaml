@@ -1,0 +1,27 @@
+steps:
+  # build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/$_IMAGE', '-f', 'Dockerfile.prod', '.']
+  # push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia.gcr.io/$PROJECT_ID/$_IMAGE']
+  # Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - '$_SERVICE'
+  - '--image'
+  - 'asia.gcr.io/$PROJECT_ID/$_IMAGE'
+  - '--region'
+  - '$_REGION'
+  - '--platform'
+  - '$_PLATFORM'
+  - '--quiet'
+  - '--update-env-vars'
+  - >-
+    JWT_SECRET=$_JWT_SECRET,
+    MONGODB_PASSWORD=$_MONGODB_PASSWORD,
+    MSSQL_PASSWORD=$_MSSQL_PASSWORD
+images: ['asia.gcr.io/$PROJECT_ID/$_IMAGE']

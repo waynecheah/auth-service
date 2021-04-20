@@ -1,0 +1,72 @@
+{
+  "name": "xyz-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --es-module-specifier-resolution=node index.js",
+    "start:dev": "nodemon --es-module-specifier-resolution=node",
+    "start:debug": "nodemon --es-module-specifier-resolution=node --inspect",
+    "start:prod": "node --es-module-specifier-resolution=node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.mcommsg.com/wayne/xyz-api"
+  },
+  "author": "Wayne Cheah",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fastify": "^3.14.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.6.6",
+    "tedious": "^11.0.7"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.24.0",
+    "standardx": "^7.0.0"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "ignore": [
+      "node_modules/**/node_modules",
+      "test/*",
+      "*.test.js"
+    ],
+    "verbose": true,
+    "ext": "js,json",
+    "events": {
+      "start": "echo '>>> Restarting due to changes...'"
+    },
+    "delay": "100"
+  },
+  "standardx": {
+    "ignore": [
+      "tmp.js"
+    ]
+  },
+  "eslintConfig": {
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ],
+      "no-multiple-empty-lines": 2,
+      "parser": "babel-eslint"
+    }
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "none",
+    "arrowParens": "avoid"
+  }
+}

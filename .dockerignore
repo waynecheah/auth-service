@@ -1,0 +1,5 @@
+.DS_Store
+Dockerfile*
+docker-componse.yml
+node_modules
+npm-debug.log
