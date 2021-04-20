@@ -1,4 +1,4 @@
-FROM lts-alpine3.13
+FROM node:lts-alpine3.13
 
 ENV HOME=/home
 ENV NODE_ENV=production
