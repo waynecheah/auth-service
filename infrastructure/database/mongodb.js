@@ -12,10 +12,12 @@ function initConfig () {
 
 async function connect () {
     const {
-        MONGODB_AUTH_DB, MONGODB_DATABASE, MONGODB_HOST, MONGODB_PASSWORD, MONGODB_PORT=27017, MONGODB_USERNAME
+        MONGODB_AUTH_DB, MONGODB_DATABASE, MONGODB_HOST, MONGODB_PASSWORD,
+        MONGODB_PORT=27017, MONGODB_USE_SSL=false, MONGODB_USERNAME
     } = initConfig()
+    const useSSL = (MONGODB_USE_SSL) ? '&ssl=true' : ''
     const url    = `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/` +
-                   `?authSource=${MONGODB_AUTH_DB}`
+                   `?authSource=${MONGODB_AUTH_DB}${useSSL}`
     const Client = new mongodb.MongoClient(url, { useUnifiedTopology: true })
 
     try {

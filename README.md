@@ -10,7 +10,7 @@
     - [Initial Setup](#initial-setup)
     - [Run via Docker Compose](#run-via-docker-compose)
   - [Continuous Deployment](#continuous-deployment)
-    - [Instruction Guides]
+    - [Instruction Guides](#instruction-guides)
   - [APIs Documentation](#apis-documentation)
   - [Clean Architecture](#clean-architecture)
     - [Folder Structure](#folder-structure)
@@ -80,11 +80,11 @@ docker-compose up -d
 
 You can automate the deployment of Auth Flow Service to <a href="https://cloud.google.com/run/docs">Cloud Run</a> by creating <a href="https://cloud.google.com/build/docs">Cloud Build triggers</a> at <a href="https://cloud.google.com/">Google Cloud Platform</a>. You can configure your triggers to build and deploy docker image whenever you update your source code and commit to the main branch.
 
-### Instruction Guides:
+#### Instruction Guides:
 1. <a href="https://cloud.google.com/billing/docs/how-to/modify-project">Enable billing for Cloud project</a>
 2. <a href="https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run#before_you_begin">Enable all required service APIs</a>
 3. <a href="https://cloud.google.com/build/docs/automating-builds/create-github-app-triggers">Creating GitHub App triggers</a>
-4. <a href="https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values?_ga=2.157475192.-372591699.1609419431">Set environment variables according to</a> <a href="./.env.exmaple"><code>.env.example</code></a>
+4. <a href="https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values?_ga=2.157475192.-372591699.1609419431">Set environment variables according to</a> <a href="./.env.example"><code>.env.example</code></a>
 5. <a href="https://github.com/settings/installations">Double check if Google Cloud Build is authorized</a>
 6. Checkout source code to main branch and push commit to Github
 ---
