@@ -34,7 +34,7 @@ function _hashPassword (password, options=null) {
 }
 
 const name      = 'AuthService'
-const providers = { ApiError: null, AuthRepo: null, CommonRepo: null }
+const providers = { ApiError: null, AuthRepo: null, CommonRepo: null, Log: null }
 const STATUS = {
     ACTIVE: 'active',
     DELETED: 'deleted',
@@ -97,7 +97,7 @@ const AuthService = {
                     expiry
                 }
             } catch (err) {
-                console.log(`${name}.login() return error`, err)
+                providers.Log(`${name}.login() return error`, { danger: err })
                 throw err
             }
         },
@@ -154,7 +154,7 @@ const AuthService = {
                     ...result
                 }
             } catch (err) {
-                console.log(`${name}.signup() return error`, err)
+                providers.Log(`${name}.signup() return error`, { danger: err })
                 throw err
             }
         }

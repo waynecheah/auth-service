@@ -3,7 +3,7 @@ import express from 'express'
 
 
 const Server = ({ Config }) => {
-const app = express()
+    const app = express()
 
     app.get('/', (_, res) => {
         res.send({ message: 'Welcome' })
@@ -44,7 +44,7 @@ const app = express()
             })
         },
 
-        errorHandler: function (resp) {
+        errorHandler: function (resp, { ErrorLog }) {
             return error => {
                 const { code='', data=null, date=null, message='', status=500 } = error
                 const errorObject = { message, status }
@@ -65,10 +65,7 @@ const app = express()
                     errorObject.message = 'Internal Server Error'
                 }
 
-                console.log('\r\n')
-                console.log('<<< ERROR >>>')
-                console.error(error.stack)
-                console.log('Error Details:', errorObject)
+                ErrorLog(error, errorObject)
                 resp.status(status).json(errorObject)
             }
         },

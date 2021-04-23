@@ -73,7 +73,7 @@ async function initServer (env) {
             const host = req.get('host')
             const time = (new Date()).toLocaleTimeString()
 
-            res.returnError = server.errorHandler(res)
+            res.returnError = server.errorHandler(res, coreProviders)
 
             process.stdout.write('\x1Bc')
             console.log(`> ${time} - ${method} ${protocol}://${subdomains}${host}${url} - ${ip}`)

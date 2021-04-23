@@ -1,12 +1,12 @@
 'use strict'
 
-const providers = { AuthService: null }
+const providers = { AuthService: null, Log: null }
 
 const AuthController = {
     providers,
 
     controller: providers => {
-        const { AuthService={} } = providers || {}
+        const { AuthService={}, Log } = providers || {}
 
 
         return [
@@ -19,11 +19,12 @@ const AuthController = {
 
                         res.send(result)
                     } catch (err) {
-                        console.log('AuthController -> POST /signup return error', err)
+                        Log('AuthController -> POST /signup return error', { danger: err })
                         res.returnError(err)
                     }
                 }
             },
+
             {
                 method: 'PUT',
                 path: '/login',
@@ -35,7 +36,7 @@ const AuthController = {
 
                         res.send(user)
                     } catch (err) {
-                        console.log('AuthController -> PUT /login return error', err)
+                        Log('AuthController -> PUT /login return error', { danger: err })
                         res.returnError(err)
                     }
                 }
