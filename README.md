@@ -111,7 +111,7 @@ You can automate the deployment of Auth Flow Service to <a href="https://cloud.g
 ## Clean Architecture
 
 The application follows the Uncle Bob "Clean Architecture" principles and project structure :
-![Cleab Architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
+![Clean Architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
 
 ### Folder Structure
 ```
