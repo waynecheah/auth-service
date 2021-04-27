@@ -4,6 +4,10 @@ import dotenv from 'dotenv'
 import * as coreProviders from '../../application/core'
 
 
+function clearConsole () {
+    process.stdout.write('\x1Bc')
+}
+
 function dependencyInjection (dependencyTree, providers, service, options=null) {
     const { init=true } = options || {}
     const requiredProviders = (providers) ? Object.keys(providers) : null
@@ -49,6 +53,14 @@ function dependencyInjection (dependencyTree, providers, service, options=null) 
     ]
 }
 
+function emoji () {
+    const list = ['😀', '😃', '😄', '😁', '😆', '😊', '🙂', '😉', '😛', '😝', '😜', '😎', '🤗']
+    const pick = Math.floor(Math.random() * list.length)
+    const icon = list[pick]
+
+    console.log(` <<< ${icon} >>>`)
+}
+
 function initConfig () {
     const config  = dotenv.config()
     const fileEnv = (config.error) ? null : config.parsed
@@ -59,24 +71,26 @@ function initConfig () {
 async function initServer (env) {
     const { SERVER=null } = env
 
-    process.stdout.write('\x1Bc')
+    clearConsole()
+    emoji()
 
     if (SERVER === 'express') {
         const { Server } = await import('../webserver/express')
         const express    = await import('express')
         const bodyParser = await import('body-parser')
-        const server     = Server({ Config: env })
+        const server     = Server({ Config: env, ...coreProviders })
         const router     = express.Router()
 
         router.use((req, res, next)=>{
             const { ip, method, protocol, subdomains, url } = req
             const host = req.get('host')
-            const time = (new Date()).toLocaleTimeString()
+            const opts = { info: true, prefix: 'Express Server' }
 
-            res.returnError = server.errorHandler(res, coreProviders)
+            res.returnError = server.errorHandler(res)
 
-            process.stdout.write('\x1Bc')
-            console.log(`> ${time} - ${method} ${protocol}://${subdomains}${host}${url} - ${ip}`)
+            clearConsole()
+            emoji()
+            coreProviders.Log(`${method} ${protocol}://${subdomains}${host}${url} - ${ip}`, opts)
             next()
         })
         server.app.use(bodyParser.default.json())
@@ -87,14 +101,17 @@ async function initServer (env) {
 
     if (SERVER === 'fastify') {
         const { Server } = await import('../webserver/fastify')
-        const server = Server({ Config: env })
+        const server = Server({ Config: env, ...coreProviders })
 
-        server.app.addHook('onRequest', (req, _, done)=>{
+        server.app.addHook('onRequest', (req, res, done)=>{
             const { hostname, ip, method, protocol, raw, url } = req
-            const time = (new Date()).toLocaleTimeString()
+            const opts = { info: true, prefix: 'Fastify Server' }
 
-            process.stdout.write('\x1Bc')
-            console.log(`> ${time} - ${method} ${protocol}://${hostname}${url} - ${ip}`)
+            res.returnError = server.errorHandler(res)
+
+            clearConsole()
+            emoji()
+            coreProviders.Log(`${method} ${protocol}://${hostname}${url} - ${ip}`, opts)
             done()
         })
 
@@ -109,10 +126,16 @@ async function initServer (env) {
 }
 
 async function initDatabase (env, errorInjection) {
-    const { DB_DRIVER=null } = env
+    const { DB_DRIVERS=null } = env
     const repositories = {}
 
-    if (DB_DRIVER === 'mongodb') {
+    if (!DB_DRIVERS) {
+        return repositories
+    }
+
+    let drivers = DB_DRIVERS.split(',')
+
+    if (DB_DRIVERS.indexOf('mongodb') !== -1) {
         const providers    = await import('../database/mongodb')
         const mongoDbRepos = await import('../repositories/mongodb')
 
@@ -134,19 +157,18 @@ async function initDatabase (env, errorInjection) {
             }
         })
 
-        return repositories
+        drivers = drivers.filter(driver => (driver !== 'mongodb'))
     }
 
-    if (DB_DRIVER === 'mssql') {
-        // const { connection, dbReady } = await import('../database/mssql')
+    if (DB_DRIVERS.indexOf('mssql') !== -1) {
+        const providers  = await import('../database/mssql')
         const msSqlRepos = await import('../repositories/mssql')
-        const providers  = {}
 
-        Object.entries(msSqlRepos).map(([name, repositoryClass]) => {
+        Object.entries(msSqlRepos).map(([name, container]) => {
             const opts = { init: (!errorInjection.length) }
             const [
                 error, result
-            ] = dependencyInjection({}, repositoryClass.providers, repositoryClass.repository, opts)
+            ] = dependencyInjection(providers, container.providers, container.repository, opts)
 
             if (error) {
                 // record error and process after this will fail and stop running
@@ -160,14 +182,14 @@ async function initDatabase (env, errorInjection) {
             }
         })
 
-        return repositories
+        drivers = drivers.filter(driver => (driver !== 'mssql'))
     }
 
-    if (DB_DRIVER) {
-        throw new Error(`Database driver "${DB_DRIVER}" is not found`)
+    if (drivers.length) {
+        throw new Error(`Database driver "${drivers.join('", "')}" not found`)
     }
 
-    // no database driver defined
+    return repositories
 }
 
 async function injectRepoToService (repositories, errorInjection) {

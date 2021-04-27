@@ -22,7 +22,7 @@ function setConsoleJson (replacer, space) {
     }
 }
 
-function ErrorLog (error, errorData) {
+function ErrorLog (error, errorData=null) {
     const stacks = error.stack.split('\n')
     const { bg: BG, fg: FG, style: SY } = Color
     const x = Color.style.RESET
@@ -50,20 +50,32 @@ function ErrorLog (error, errorData) {
         }
     })
 
-    console.log(FG.RED + SY.UNDERSCORE + 'Error Details:' + x)
-    console.json(errorData)
+    if (errorData) {
+        console.log(FG.RED + SY.UNDERSCORE + 'Error Details:' + x)
+        console.json(errorData)
+    }
 }
 
 function Log (message, options=null) {
     const {
-        blink=false, data=null, danger=false, err=null, info=false, time=false
+        blink=false, data=null, danger=false, err=null, info=false, prefix='', success=false, time=true
     } = options || {}
     const { bg: BG, fg: FG, style: SY } = Color
-    const x = Color.style.RESET
+    const x   = Color.style.RESET
+    const now = new Date()
+    const ts  = (time) ? FG.YELLOW + now.toLocaleString().replace('/'+now.getFullYear(), '')+' '+ x : ''
+
+    if (prefix) {
+        message = message.replace('"_', `"${FG.MAGENTA}${SY.BRIGHT}`)
+    }
 
     if (err) {
-        console.log(BG.RED + FG.WHITE, message, x)
-        console.error(FG.RED, err, x)
+        if (prefix) {
+            message = message.replace('_"', `${FG.RED}"`)
+            console.log(ts + BG.RED + FG.WHITE + SY.BRIGHT, prefix, x, FG.RED + message, x)
+        } else {
+            console.log(ts + BG.RED + FG.WHITE, message, x)
+        }
     } else if (danger) {
         const { count=1 } = danger || {}
         const bold = (count === 1) ? SY.BRIGHT : ''
@@ -72,7 +84,19 @@ function Log (message, options=null) {
 
         console.log(FG.WHITE + bold + count+')' + x, FG.MAGENTA + bold + message, x)
     } else if (info) {
-        console.log(BG.CYAN + FG.WHITE, message, x)
+        if (prefix) {
+            message = message.replace('_"', `${FG.CYAN}"`)
+            console.log(ts + BG.CYAN + FG.WHITE + SY.BRIGHT, prefix, x, FG.CYAN + message, x)
+        } else {
+            console.log(ts + BG.CYAN + FG.WHITE, message, x)
+        }
+    } else if (success) {
+        if (prefix) {
+            message = message.replace('_"', `${x}${FG.GREEN}"`)
+            console.log(ts + BG.GREEN + FG.WHITE + SY.BRIGHT, prefix, x, FG.GREEN + message, x)
+        } else {
+            console.log(ts + BG.GREEN + FG.WHITE, message, x)
+        }
     }
 
     if (data) {

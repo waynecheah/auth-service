@@ -105,6 +105,8 @@ describe('Auth Service', () => {
             username: 'waynecheah'
         }
 
+        expect.assertions(3)
+
         try {
             // when
             await signup(body)
@@ -124,15 +126,13 @@ describe('Auth Service', () => {
             username: 'new_username'
         }
 
-        try {
-            // when
-            const response = await signup(body)
+        // when
+        const response = await signup(body)
 
-            // then
-            expect(response._id).toBe('607e8ec89b1bf2001f66f97a')
-            expect(response.accessToken).toBeDefined()
-            expect(response.password).toBeDefined()
-            expect(response.expiry).toBeDefined()
-        } catch { }
+        // then
+        expect(response._id).toBe('607e8ec89b1bf2001f66f97a')
+        expect(response.accessToken).toBeDefined()
+        expect(response.expiry).toBeDefined()
+        expect(response.password).toBeUndefined()
     })
 })

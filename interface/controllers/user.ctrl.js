@@ -1,15 +1,14 @@
 'use strict'
 
 const name      = 'UserController'
-const providers = { UserService: null }
+const providers = { Log: null, UserService: null }
 
 const UserController = {
     name,
     providers,
 
     controller: providers => {
-        const { UserService={} } = providers || {}
-
+        const { Log, UserService } = providers
 
         return [
             {
@@ -22,11 +21,12 @@ const UserController = {
 
                         res.send(result)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }
             },
+
             {
                 method: 'POST',
                 path: '/users/:id/roles',
@@ -37,11 +37,12 @@ const UserController = {
 
                         res.send(result)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }
             },
+
             {
                 method: 'POST',
                 path: '/users/:id/permissions',
@@ -52,7 +53,7 @@ const UserController = {
 
                         res.send(result)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }

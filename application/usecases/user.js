@@ -1,7 +1,7 @@
 'use strict'
 
 const name      = 'UserService'
-const providers = { ApiError: null, CommonRepo: null, PermissionRepo: null }
+const providers = { ApiError: null, CommonRepo: null, Log: null, PermissionRepo: null }
 const tableName = 'users'
 const STATUS = {
     ACTIVE: 'active',
@@ -15,8 +15,9 @@ const UserService = {
 
     service: providers => ({
         addRoles: async (user_id, data, options=null) => {
+            const { ApiError, CommonRepo, Log } = providers
+
             try {
-                const { ApiError, CommonRepo } = providers
                 const { roles } = data
                 const user = await CommonRepo.findById(tableName, user_id, options)
 
@@ -83,14 +84,15 @@ const UserService = {
 
                 return (ok) ? result : []
             } catch (err) {
-                console.log(`→ ${name}.addRoles() return error`)
+                Log(`${name}.addRoles() return error`, { danger: err })
                 throw err
             }
         },
 
         checkPermissionStatus: async (user_id, data, options=null) => {
+            const { ApiError, CommonRepo, Log, PermissionRepo } = providers
+
             try {
-                const { ApiError, CommonRepo, PermissionRepo } = providers
                 const { ids=null, permissions=null } = data
                 const user   = await CommonRepo.findById(tableName, user_id, options)
                 const result = []
@@ -185,15 +187,15 @@ const UserService = {
 
                 return result
             } catch (err) {
-                console.log(`→ ${name}.checkPermissionStatus() return error`)
+                Log(`${name}.checkPermissionStatus() return error`, { danger: err })
                 throw err
             }
         },
 
         getUserRoles: async (user_id, options=null) => {
-            try {
-                const { ApiError, CommonRepo } = providers
+            const { ApiError, Log, CommonRepo } = providers
 
+            try {
                 const user = await CommonRepo.findById(tableName, user_id, options)
 
                 if (!user) {
@@ -219,7 +221,7 @@ const UserService = {
                     }
                 })
             } catch (err) {
-                console.log(`→ ${name}.getUserRoles() return error`)
+                Log(`${name}.getUserRoles() return error`, { danger: err })
                 throw err
             }
         }

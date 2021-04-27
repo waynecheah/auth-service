@@ -47,8 +47,9 @@ const AuthService = {
 
     service: providers => ({
         login: async (body, options=null) => {
+            const { ApiError, AuthRepo, CommonRepo, Log } = providers
+
             try {
-                const { ApiError, AuthRepo, CommonRepo } = providers
                 const { password: rawPassword, username } = body
                 const query = {
                     $or: [
@@ -97,14 +98,15 @@ const AuthService = {
                     expiry
                 }
             } catch (err) {
-                providers.Log(`${name}.login() return error`, { danger: err })
+                Log(`${name}.login() return error`, { danger: err })
                 throw err
             }
         },
 
         signup: async (body, options=null) => {
+            const { ApiError, AuthRepo, Log } = providers
+
             try {
-                const { ApiError, AuthRepo } = providers
                 const { email, password: rawPassword, username } = body
                 const query = {
                     $or: [
@@ -154,7 +156,7 @@ const AuthService = {
                     ...result
                 }
             } catch (err) {
-                providers.Log(`${name}.signup() return error`, { danger: err })
+                Log(`${name}.signup() return error`, { danger: err })
                 throw err
             }
         }

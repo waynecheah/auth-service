@@ -2,7 +2,7 @@
 import fastify from 'fastify'
 
 
-const Server = ({ Config }) => {
+const Server = ({ Config, ErrorLog, Log }) => {
     const app = fastify({
         logger: (Config.SERVER_LOG)
     })
@@ -44,14 +44,43 @@ const Server = ({ Config }) => {
             })
         },
 
+        errorHandler: function (resp) {
+            return error => {
+                const { code='', data=null, date=null, message='', status=500 } = error
+                const errorObject = { message, statusCode: status }
+
+                if (code) {
+                    errorObject.code = code
+                }
+
+                if (data) {
+                    errorObject.data = data
+                }
+
+                if (date) {
+                    errorObject.date = date
+                }
+
+                if (status >= 500) {
+                    errorObject.message = 'Internal Server Error'
+                }
+
+                ErrorLog(error, errorObject)
+                throw errorObject
+            }
+        },
+
         start: async function () {
+            const prefix = 'Server::start'
+
             try {
                 const port    = Config.SERVER_PORT || 4000
                 const address = await app.listen(port, '0.0.0.0')
 
-                console.log(`Server is listening on ${address}`)
+                Log(`Fastify server is listening on ${address}`, { success: true, prefix })
             } catch (err) {
                 this.app.log.error(err)
+                Log('Fastify server is fail to start', { err: true, prefix })
                 process.exit(1)
             }
         }

@@ -1,31 +1,31 @@
 'use strict'
 
 const name      = 'PermissionController'
-const providers = { PermissionService: null }
+const providers = { Log: null, PermissionService: null }
 
 const PermissionController = {
     name,
     providers,
 
     controller: providers => {
-        const { PermissionService={} } = providers || {}
-
+        const { Log, PermissionService } = providers
 
         return [
             {
                 method: 'GET',
                 path: '/permissions',
-                handler: async (req, res) => {
+                handler: async function (req, res) {
                     try {
                         const result = await PermissionService.getPermissions(req.query)
 
                         res.send(result)
                     } catch (err) {
-                        console.log(`→ ${name} -> GET /permissions return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }
             },
+
             {
                 method: 'POST',
                 path: '/permission',
@@ -37,7 +37,7 @@ const PermissionController = {
 
                         res.send(user)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }

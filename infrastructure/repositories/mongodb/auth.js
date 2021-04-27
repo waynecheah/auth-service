@@ -1,9 +1,9 @@
 'use strict'
 
 
-function _validate (DbReady, options=null) {
-    if (!DbReady) {
-        throw new Error('Connection to mongoDB server is closed')
+function _validate (dbReady, options=null) {
+    if (!dbReady) {
+        throw new Error('Connection to mongoDB server is not connected')
     }
 
     const { otherChecking=false } = options || {}
@@ -11,39 +11,46 @@ function _validate (DbReady, options=null) {
     return true
 }
 
-const providers = { Db: null, DbReady: null }
+const name      = 'AuthRepo'
+const providers = { Log: null, Mongo: null }
 const tableName = 'users'
 
 const AuthRepo = {
+    driver: 'mongodb',
+    name,
     providers,
 
     repository: providers => ({
         create: async (data, options=null) => {
-            const { Db, DbReady } = providers
+            const { Log, Mongo } = providers
 
             try {
-                _validate(DbReady)
+                const db = await Mongo.db()
 
-                const collection = Db.collection(tableName)
+                _validate(Mongo.isConnected)
+
+                const collection = db.collection(tableName)
                 const { insertedId, ops, result } = await collection.insertOne(data)
 
                 return (Array.isArray(ops) && ops.length)
                     ? ops[0]
                     : { _id: insertedId, ...data }
             } catch (err) {
-                console.log('AuthRepo.create() return error', err)
+                Log(`${name}.create() return error`, { danger: err })
                 throw err
             }
         },
 
         find: async (query, options=null) => {
-            const { Db, DbReady } = providers
-            const { findOne=false } = options || {}
+            const { Log, Mongo } = providers
 
             try {
-                _validate(DbReady)
+                const { findOne=false } = options || {}
+                const db = await Mongo.db()
 
-                const collection = Db.collection(tableName)
+                _validate(Mongo.isConnected)
+
+                const collection = db.collection(tableName)
 
                 if (findOne) {
                     return await collection.findOne(query)
@@ -51,7 +58,7 @@ const AuthRepo = {
 
                 return await collection.find(query).toArray()
             } catch (err) {
-                console.log('AuthRepo.find() return error', err)
+                Log(`${name}.find() return error`, { danger: err })
                 throw err
             }
         }

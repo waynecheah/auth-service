@@ -1,10 +1,9 @@
 'use strict'
-import mongodb from 'mongodb'
 
 
-function _validate (DbReady, options=null) {
-    if (!DbReady) {
-        throw new Error('Connection to mongoDB server is closed')
+function _validate (dbReady, options=null) {
+    if (!dbReady) {
+        throw new Error('Connection to mongoDB server is not connected')
     }
 
     const { otherChecking=false } = options || {}
@@ -13,27 +12,32 @@ function _validate (DbReady, options=null) {
 }
 
 const name      = 'CommonRepo'
-const providers = { ApiError: null, Db: null, DbReady: null }
+const providers = { ApiError: null, Mongo: null, Log: null }
 
 const CommonRepo = {
+    driver: 'mongodb',
     name,
     providers,
 
     repository: providers => ({
         create: async (collectionName, data, options=null) => {
+            const { Log, Mongo } = providers
+
             try {
-                const { Db, DbReady } = providers
-                const { dbOptions=null } = options || {}
+                const { dbOptions=null, summary=false } = options || {}
+                const db = await Mongo.db()
 
-                _validate(DbReady)
+                _validate(Mongo.isConnected())
 
-                const collection = Db.collection(collectionName)
+                const collection = db.collection(collectionName)
 
                 if (Array.isArray(data)) {
                     const {
                         connection, insertedCount, insertedIds, ops, result
                     } = await collection.insertMany(data, dbOptions)
                     const { n, ok } = result
+
+                    if (summary) return { insertedCount, insertedIds, ok }
 
                     if (Array.isArray(ops) && ops.length) return ops
 
@@ -57,19 +61,21 @@ const CommonRepo = {
                     ? ops[0]
                     : { _id: insertedId, ...data }
             } catch (err) {
-                console.log(`${name}.create() return error`)
+                Log(`${name}.create() return error`, { danger: err })
                 throw err
             }
         },
 
         delete: async (collectionName, filter, options=null) => {
+            const { Log, Mongo } = providers
+
             try {
-                const { Db, DbReady } = providers
                 const { dbOptions=null, deleteOne=true } = options || {}
+                const db = await Mongo.db()
 
-                _validate(DbReady)
+                _validate(Mongo.isConnected())
 
-                const collection = Db.collection(collectionName)
+                const collection = db.collection(collectionName)
 
                 const {
                     connection, deletedCount, result
@@ -80,19 +86,21 @@ const CommonRepo = {
 
                 return { deletedCount }
             } catch (err) {
-                console.log(`${name}.delete() return error`)
+                Log(`${name}.delete() return error`, { danger: err })
                 throw err
             }
         },
 
         find: async (collectionName, query, options=null) => {
+            const { Log, Mongo } = providers
+
             try {
-                const { Db, DbReady } = providers
                 const { findOne=false, projection=null } = options || {}
+                const db = await Mongo.db()
 
-                _validate(DbReady)
+                _validate(Mongo.isConnected())
 
-                const collection = Db.collection(collectionName)
+                const collection = db.collection(collectionName)
 
                 if (findOne) {
                     return await collection.findOne(query, { projection })
@@ -100,45 +108,49 @@ const CommonRepo = {
 
                 return await collection.find(query, { projection }).toArray()
             } catch (err) {
-                console.log(`${name}.find() return error`)
+                Log(`${name}.find() return error`, { danger: err })
                 throw err
             }
         },
 
         findById: async (collectionName, id, options=null) => {
+            const { ApiError, Log, Mongo } = providers
+
             try {
-                const { ApiError, Db, DbReady } = providers
                 const { projection=null } = options || {}
+                const db = await Mongo.db()
 
-                _validate(DbReady)
+                _validate(Mongo.isConnected())
 
-                if (!mongodb.ObjectID.isValid(id)) {
+                if (!Mongo.isValidID(id)) {
                     throw new ApiError({
                         code: 'INVALID_OBJECT_ID',
                         status: 400
                     }, `Invalid id - ${id}`)
                 }
 
-                const collection = Db.collection(collectionName)
+                const collection = db.collection(collectionName)
                 const query      = {
-                    _id: new mongodb.ObjectID(id)
+                    _id: Mongo.objectID(id)
                 }
 
                 return await collection.findOne(query, { projection })
             } catch (err) {
-                console.log(`→ ${name}.findById() return error`)
+                Log(`${name}.findById() return error`, { danger: err })
                 throw err
             }
         },
 
         update: async (collectionName, filter, data, options=null) => {
+            const { Log, Mongo } = providers
+
             try {
-                const { Db, DbReady } = providers
                 const { dbOptions=null, updateOne=true } = options || {}
+                const db = await Mongo.db()
 
-                _validate(DbReady)
+                _validate(Mongo.isConnected())
 
-                const collection = Db.collection(collectionName)
+                const collection = db.collection(collectionName)
                 const {
                     matchedCount, message, modifiedCount, ops, result, upsertedId, upsertedCount
                 } = (updateOne)
@@ -150,7 +162,7 @@ const CommonRepo = {
                     ok, matchedCount, modifiedCount
                 }
             } catch (err) {
-                console.log(`${name}.update() return error`)
+                Log(`${name}.update() return error`, { danger: err })
                 throw err
             }
         }

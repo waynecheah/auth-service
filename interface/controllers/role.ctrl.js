@@ -1,31 +1,31 @@
 'use strict'
 
 const name      = 'RoleController'
-const providers = { RoleService: null }
+const providers = { Log: null, RoleService: null }
 
 const RoleController = {
     name,
     providers,
 
     controller: providers => {
-        const { RoleService={} } = providers || {}
-
+        const { Log, RoleService } = providers
 
         return [
             {
                 method: 'GET',
                 path: '/roles',
-                handler: async (req, res) => {
+                handler: async function (req, res) {
                     try {
                         const result = await RoleService.getRoles(req.query)
 
                         res.send(result)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }
             },
+
             {
                 method: 'POST',
                 path: '/role',
@@ -37,7 +37,7 @@ const RoleController = {
 
                         res.send(user)
                     } catch (err) {
-                        console.log(`→ ${name} -> ${this.method} ${this.path} return error`)
+                        Log(`${name} → ${this.method} → ${this.path} return error`, { danger: err })
                         res.returnError(err)
                     }
                 }
